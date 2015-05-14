@@ -1,0 +1,18 @@
+{
+  "name": "appstore-bot-slack",
+  "version": "1.0.0",
+  "description": "A Slack bot for working with the Pebble appstore API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Matthew Tole <mtole@getpebble.com>",
+  "license": "MIT",
+  "dependencies": {
+    "algoliasearch": "^3.3.1",
+    "dotenv": "^1.1.0",
+    "lodash": "^3.8.0",
+    "slack-client": "^1.4.0",
+    "superagent": "^1.2.0"
+  }
+}

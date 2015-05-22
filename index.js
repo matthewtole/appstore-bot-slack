@@ -4,6 +4,7 @@ var _ = require('lodash');
 var Algolia = require('algoliasearch');
 var superagent = require('superagent');
 var fs = require('fs');
+var path = require('path');
 
 var algoliaClient = Algolia(process.env.ALGOLIA_APP_ID, process.env.ALGOLIA_API_KEY);
 var appstoreSearch = algoliaClient.initIndex(process.env.ALGOLIA_INDEX);
@@ -139,7 +140,7 @@ function doDocsRequest(request, channel) {
 }
 
 function getSlothFact(callback) {
-  fs.readFile('sloths.txt', function (err, data) {
+  fs.readFile(path.join(__dirname, 'sloths.txt'), function (err, data) {
     if (err) {
       return callback(err);
     }

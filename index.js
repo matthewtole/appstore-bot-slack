@@ -3,6 +3,7 @@ var Slack = require('slack-client');
 var _ = require('lodash');
 var Algolia = require('algoliasearch');
 var superagent = require('superagent');
+var fs = require('fs');
 
 var algoliaClient = Algolia(process.env.ALGOLIA_APP_ID, process.env.ALGOLIA_API_KEY);
 var appstoreSearch = algoliaClient.initIndex(process.env.ALGOLIA_INDEX);
@@ -28,21 +29,32 @@ slack.on('message', function (message) {
   var channel = slack.getChannelGroupOrDMByID(message.channel);
   var user = slack.getUserByID(message.user);
   var response = '';
-  if (! isMessageForMe(message)) {
-    return;
+  if (isMessageForMe(message)) {
+    var request = getRequest(message);
+    switch (request.type) {
+      case 'appstore.url':
+      case 'appstore.hearts':
+        doAppstoreRequest(request, channel);
+      break;
+      case 'docs':
+        doDocsRequest(request, channel);
+      break;
+      default:
+        console.log('Could not handle: ' + message);
+        // TODO: What should we do here?
+    }
   }
-  var request = getRequest(message);
-  switch (request.type) {
-    case 'appstore.url':
-    case 'appstore.hearts':
-      doAppstoreRequest(request, channel);
-    break;
-    case 'docs':
-      doDocsRequest(request, channel);
-    break;
-    default:
-      console.log('Could not handle: ' + message);
-      // TODO: What should we do here?
+  else {
+    if ((' ' + message.text + ' ').match(/\W(sloths?)\W/)) {
+      if (message.user !== 'U04RW8V6R') {
+        getSlothFact(function (err, fact) {
+          if (err) {
+            return console.log(err);
+          }
+          channel.send('Did someone mention sloths? Here\'s a random fact stolen from SlothFactsBot on Reddit!\n\n' + fact);
+        });
+      }
+    }
   }
 });
 
@@ -123,6 +135,17 @@ function doDocsRequest(request, channel) {
     }
     var symbol = _.findWhere(res.body, { name: request.data });
     channel.send(symbol.summary);
+  });
+}
+
+function getSlothFact(callback) {
+  fs.readFile('sloths.txt', function (err, data) {
+    if (err) {
+      return callback(err);
+    }
+    var lines = data.toString().split('\n');
+    var fact = lines[Math.floor(Math.random()*lines.length)];
+    return callback(null, fact)
   });
 }
 

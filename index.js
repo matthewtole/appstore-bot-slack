@@ -109,7 +109,7 @@ function doAppstoreRequest(request, channel) {
                 fields: [
                   {
                     title: 'Description',
-                    value: app.description
+                    value: _.get(res.body, 'data[0].description', app.description)
                   }
                 ],
                 image_url: _.get(res.body, 'data[0].screenshot_images[0].144x168', app.screenshot_images[0]),

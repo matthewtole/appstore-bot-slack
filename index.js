@@ -69,10 +69,10 @@ function isMessageForMe(message) {
 
 function getRequest(message) {
   var messageText = message.text.substr(14);
-  if (messageText.substr(0, 8) === ':heart: ') {
+  if (messageText.substr(0, 8) === ':heart: ' || messageText.substr(0, 9) === ':hearts: ') {
     return {
       type: 'appstore.hearts',
-      data: messageText.substr(8)
+      data: messageText.substr(messageText.indexOf(': ')+2)
     };
   }
   if (messageText.substr(0, 7) === ':book: ') {

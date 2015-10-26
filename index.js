@@ -46,7 +46,7 @@ slack.on('message', function (message) {
     }
   }
   else {
-    if ((' ' + message.text + ' ').match(/\W(sloths?)\W/)) {
+    if ((' ' + message.text + ' ').match(/\W?(sloths?)\W?/)) {
       if (message.user !== 'U04RW8V6R') {
         getSlothFact(function (err, fact) {
           if (err) {
@@ -88,7 +88,13 @@ function getRequest(message) {
 }
 
 function doAppstoreRequest(request, channel) {
-  appstoreSearch.search(request.data, function searchDone(err, content) {
+  var appName = request.data;
+  var platform;
+  if ((platform = appName.match(/\[(aplite|basalt|chalk)\]/))) {
+    appName = appName.replace(platform[0], '');
+    platform = platform[1];
+  }
+  appstoreSearch.search(appName, function searchDone(err, content) {
     if (err) {
       return console.log(err);
     }
@@ -96,33 +102,35 @@ function doAppstoreRequest(request, channel) {
       return channel.send('Could not find an app with that name. Sorry! :sob:');
     }
     var app = content.hits[0];
-    superagent.get('https://appstore-api.getpebble.com/v2/apps/id/' + app.id + '?hardware=basalt').end(function (err, res) {
-      switch (request.type) {
-        case 'appstore.url':
-          channel.postMessage({
-            as_user: true,
-            attachments: [
-              {
-                fallback: app.title + ' v' + app.version,
-                title: app.title + ' v' + app.version,
-                title_link: 'https://apps.getpebble.com/applications/' + app.id,
-                fields: [
-                  {
-                    title: 'Description',
-                    value: _.get(res.body, 'data[0].description', app.description)
-                  }
-                ],
-                image_url: _.get(res.body, 'data[0].screenshot_images[0].144x168', app.screenshot_images[0]),
-                author_name: app.author,
-              }
-            ]
-          });
-          break;
-        case 'appstore.hearts':
-          channel.send(app.title + ' currently has ' + app.hearts + ' :heart:');
-          break;
-      }
-    });
+    var assetCollection = _.findWhere(app.asset_collections, { hardware_platform: platform });
+    if (!assetCollection) {
+      assetCollection = app.asset_collections[0];
+    }
+    switch (request.type) {
+      case 'appstore.url':
+        channel.postMessage({
+          as_user: true,
+          attachments: [
+            {
+              fallback: app.title + ' v' + app.version,
+              title: app.title + ' v' + app.version,
+              title_link: 'https://apps.getpebble.com/applications/' + app.id,
+              fields: [
+                {
+                  title: 'Description',
+                  value: assetCollection.description
+                }
+              ],
+              image_url: assetCollection.screenshots[0],
+              author_name: app.author
+            }
+          ]
+        });
+        break;
+      case 'appstore.hearts':
+        channel.send(app.title + ' currently has ' + app.hearts + ' :heart:');
+        break;
+    }
   });
 }
 

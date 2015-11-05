@@ -47,7 +47,7 @@ slack.on('message', function (message) {
   }
   else {
     if ((' ' + message.text + ' ').match(/\W?(sloths?)\W?/)) {
-      if (message.user !== 'U04RW8V6R') {
+      if (message.user !== slack.self.id) {
         getSlothFact(function (err, fact) {
           if (err) {
             return console.log(err);
@@ -64,7 +64,7 @@ slack.on('error', function (err) {
 });
 
 function isMessageForMe(message) {
-  return (message.text && message.text.substr(0, 14) == '<@U04RW8V6R>: ');
+  return (message.text && message.text.substr(0, 14) == '<@' + slack.self.id + '>: ');
 }
 
 function getRequest(message) {

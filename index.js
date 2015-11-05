@@ -101,7 +101,7 @@ function doAppstoreRequest(request, channel) {
     }
     switch (request.type) {
       case 'appstore.url':
-        let link = `https://apps.getpebble.com/applications/${app.id}`;
+        let link = `https://apps.getpebble.com/en_US/applications/${app.id}`;
         if (hardware) {
           link += `?hardware=${hardware}`;
         }

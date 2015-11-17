@@ -1,6 +1,4 @@
-FROM    centos:centos6
-RUN curl -sL https://rpm.nodesource.com/setup | bash -
-RUN yum install -y nodejs
+FROM node:4.2.2
 COPY package.json /src/package.json
 RUN cd /src; npm install
 COPY . /src

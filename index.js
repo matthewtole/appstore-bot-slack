@@ -114,6 +114,16 @@ function doAppstoreRequest(request, channel) {
               title_link: link,
               fields: [
                 {
+                  title: 'Hearts',
+                  value: app.hearts,
+                  short: true
+                },
+                {
+                  title: 'Installs',
+                  value: app.installs,
+                  short: true
+                },
+                {
                   title: 'Description',
                   value: assetCollection.description
                 }
